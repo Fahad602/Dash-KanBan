@@ -11,7 +11,6 @@ from sqlalchemy import (
     Column,
     Integer,
     String,
-    Boolean,
     DateTime,
     ForeignKey,
 )
@@ -98,7 +97,6 @@ event = {
 
 def generate_card(data):
     card_content = [
-        dbc.CardHeader(f"Card {data.Sedol}"),
         dbc.CardBody(
             [
                 html.P(f"Type: {data.type}"),
@@ -130,161 +128,44 @@ app.layout = html.Div(
                 "display": "flex",
                 "font-weight": "bold",
                 "color": "white",
+                "height": "32px"
             },
             children=[
                 html.Div(
                     "Ideas",
                     className="col header",
-                    style={
-                        "padding": "0",
-                        "margin": "5px",
-                        "margin-bottom": "0",
-                        "flex": "1",
-                        "background-color": "#336699",
-                        "height": "inherit",
-                        "display": "flex",
-                        "align-items": "center",
-                        "justify-content": "center",
-                        "border-top-left-radius": "7px",
-                        "border-top-right-radius": "7px",
-                    },
                 ),
                 html.Div(
-                    "Correction of Errors Report",
+                    "Correction of Errors",
                     className="col header",
-                    style={
-                        "padding": "0",
-                        "margin": "5px",
-                        "margin-bottom": "0",
-                        "flex": "1",
-                        "background-color": "#336699",
-                        "height": "inherit",
-                        "display": "flex",
-                        "text-align": "center",
-                        "align-items": "center",
-                        "justify-content": "center",
-                        "border-top-left-radius": "7px",
-                        "border-top-right-radius": "7px",
-                    },
                 ),
                 html.Div(
                     "Short Note",
                     className="col header",
-                    style={
-                        "padding": "0",
-                        "margin": "5px",
-                        "margin-bottom": "0",
-                        "flex": "1",
-                        "background-color": "#336699",
-                        "height": "inherit",
-                        "display": "flex",
-                        "align-items": "center",
-                        "justify-content": "center",
-                        "border-top-left-radius": "7px",
-                        "border-top-right-radius": "7px",
-                    },
                 ),
                 html.Div(
                     "Q&A",
                     className="col header",
-                    style={
-                        "padding": "0",
-                        "margin": "5px",
-                        "margin-bottom": "0",
-                        "flex": "1",
-                        "background-color": "#336699",
-                        "height": "inherit",
-                        "display": "flex",
-                        "align-items": "center",
-                        "justify-content": "center",
-                        "border-top-left-radius": "7px",
-                        "border-top-right-radius": "7px",
-                    },
                 ),
                 html.Div(
                     "Model",
                     className="col header",
-                    style={
-                        "padding": "0",
-                        "margin": "5px",
-                        "margin-bottom": "0",
-                        "flex": "1",
-                        "background-color": "#336699",
-                        "height": "inherit",
-                        "display": "flex",
-                        "align-items": "center",
-                        "justify-content": "center",
-                        "border-top-left-radius": "7px",
-                        "border-top-right-radius": "7px",
-                    },
                 ),
                 html.Div(
                     "Pre Mortem",
                     className="col header",
-                    style={
-                        "padding": "0",
-                        "margin": "5px",
-                        "margin-bottom": "0",
-                        "flex": "1",
-                        "background-color": "#336699",
-                        "height": "inherit",
-                        "display": "flex",
-                        "align-items": "center",
-                        "justify-content": "center",
-                        "border-top-left-radius": "7px",
-                        "border-top-right-radius": "7px",
-                    },
                 ),
                 html.Div(
                     "Full Note",
                     className="col header",
-                    style={
-                        "padding": "0",
-                        "margin": "5px",
-                        "margin-bottom": "0",
-                        "flex": "1",
-                        "background-color": "#336699",
-                        "height": "inherit",
-                        "display": "flex",
-                        "align-items": "center",
-                        "justify-content": "center",
-                        "border-top-left-radius": "7px",
-                        "border-top-right-radius": "7px",
-                    },
                 ),
                 html.Div(
                     "Buy List",
                     className="col header",
-                    style={
-                        "padding": "0",
-                        "margin": "5px",
-                        "margin-bottom": "0",
-                        "flex": "1",
-                        "background-color": "#336699",
-                        "height": "inherit",
-                        "display": "flex",
-                        "align-items": "center",
-                        "justify-content": "center",
-                        "border-top-left-radius": "7px",
-                        "border-top-right-radius": "7px",
-                    },
                 ),
                 html.Div(
                     "Fail List",
                     className="col header",
-                    style={
-                        "padding": "0",
-                        "margin": "5px",
-                        "margin-bottom": "0",
-                        "flex": "1",
-                        "background-color": "#336699",
-                        "height": "inherit",
-                        "display": "flex",
-                        "align-items": "center",
-                        "justify-content": "center",
-                        "border-top-left-radius": "7px",
-                        "border-top-right-radius": "7px",
-                    },
                 ),
             ],
         ),
@@ -297,17 +178,6 @@ app.layout = html.Div(
                     html.Div(
                         id="drag_container1",
                         className="col custom-col",
-                        style={
-                            "padding": "3px",
-                            "height": "90vh",
-                            "background-color": "#E1F0FF",
-                            "margin": "5px",
-                            "margin-top": "0",
-                            "flex": "1",
-                            "overflow-y": "auto",
-                            "border-bottom-left-radius": "7px",
-                            "border-bottom-right-radius": "7px",
-                        },
                         children=[
                             generate_card(card_data)
                             for card_data in get_cards_by_stage("Ideas")
@@ -316,17 +186,6 @@ app.layout = html.Div(
                     html.Div(
                         id="drag_container2",
                         className="col custom-col",
-                        style={
-                            "padding": "3px",
-                            "height": "90vh",
-                            "background-color": "#E1F0FF",
-                            "margin": "5px",
-                            "margin-top": "0",
-                            "flex": "1",
-                            "overflow-y": "auto",
-                            "border-bottom-left-radius": "7px",
-                            "border-bottom-right-radius": "7px",
-                        },
                         children=[
                             generate_card(card_data)
                             for card_data in get_cards_by_stage(
@@ -337,17 +196,6 @@ app.layout = html.Div(
                     html.Div(
                         id="drag_container3",
                         className="col custom-col",
-                        style={
-                            "padding": "3px",
-                            "height": "90vh",
-                            "background-color": "#E1F0FF",
-                            "margin": "5px",
-                            "margin-top": "0",
-                            "flex": "1",
-                            "overflow-y": "auto",
-                            "border-bottom-left-radius": "7px",
-                            "border-bottom-right-radius": "7px",
-                        },
                         children=[
                             generate_card(card_data)
                             for card_data in get_cards_by_stage("Short Note")
@@ -356,17 +204,6 @@ app.layout = html.Div(
                     html.Div(
                         id="drag_container4",
                         className="col custom-col",
-                        style={
-                            "padding": "3px",
-                            "height": "90vh",
-                            "background-color": "#E1F0FF",
-                            "margin": "5px",
-                            "margin-top": "0",
-                            "flex": "1",
-                            "overflow-y": "auto",
-                            "border-bottom-left-radius": "7px",
-                            "border-bottom-right-radius": "7px",
-                        },
                         children=[
                             generate_card(card_data)
                             for card_data in get_cards_by_stage("Q&A")
@@ -375,17 +212,6 @@ app.layout = html.Div(
                     html.Div(
                         id="drag_container5",
                         className="col custom-col",
-                        style={
-                            "padding": "3px",
-                            "height": "90vh",
-                            "background-color": "#E1F0FF",
-                            "margin": "5px",
-                            "margin-top": "0",
-                            "flex": "1",
-                            "overflow-y": "auto",
-                            "border-bottom-left-radius": "7px",
-                            "border-bottom-right-radius": "7px",
-                        },
                         children=[
                             generate_card(card_data)
                             for card_data in get_cards_by_stage("Model")
@@ -394,17 +220,6 @@ app.layout = html.Div(
                     html.Div(
                         id="drag_container6",
                         className="col custom-col",
-                        style={
-                            "padding": "3px",
-                            "height": "90vh",
-                            "background-color": "#E1F0FF",
-                            "margin": "5px",
-                            "margin-top": "0",
-                            "flex": "1",
-                            "overflow-y": "auto",
-                            "border-bottom-left-radius": "7px",
-                            "border-bottom-right-radius": "7px",
-                        },
                         children=[
                             generate_card(card_data)
                             for card_data in get_cards_by_stage("Pre Mortem")
@@ -413,17 +228,6 @@ app.layout = html.Div(
                     html.Div(
                         id="drag_container7",
                         className="col custom-col",
-                        style={
-                            "padding": "3px",
-                            "height": "90vh",
-                            "background-color": "#E1F0FF",
-                            "margin": "5px",
-                            "margin-top": "0",
-                            "flex": "1",
-                            "overflow-y": "auto",
-                            "border-bottom-left-radius": "7px",
-                            "border-bottom-right-radius": "7px",
-                        },
                         children=[
                             generate_card(card_data)
                             for card_data in get_cards_by_stage("Full Note")
@@ -432,17 +236,6 @@ app.layout = html.Div(
                     html.Div(
                         id="drag_container8",
                         className="col custom-col",
-                        style={
-                            "padding": "3px",
-                            "height": "90vh",
-                            "background-color": "#E1F0FF",
-                            "margin": "5px",
-                            "margin-top": "0",
-                            "flex": "1",
-                            "overflow-y": "auto",
-                            "border-bottom-left-radius": "7px",
-                            "border-bottom-right-radius": "7px",
-                        },
                         children=[
                             generate_card(card_data)
                             for card_data in get_cards_by_stage("Buy List")
@@ -451,17 +244,6 @@ app.layout = html.Div(
                     html.Div(
                         id="drag_container9",
                         className="col custom-col",
-                        style={
-                            "padding": "3px",
-                            "height": "90vh",
-                            "background-color": "#E1F0FF",
-                            "margin": "5px",
-                            "margin-top": "0",
-                            "flex": "1",
-                            "overflow-y": "auto",
-                            "border-bottom-left-radius": "7px",
-                            "border-bottom-right-radius": "7px",
-                        },
                         children=[
                             generate_card(card_data)
                             for card_data in get_cards_by_stage("Fail List")

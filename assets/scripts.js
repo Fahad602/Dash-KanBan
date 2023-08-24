@@ -11,9 +11,25 @@ window.dash_clientside.clientside = {
                 els[i] = document.getElementById(args[i]);
                 drake.containers.push(els[i]);
             }
+            drake.on("over", function (el, container) {
+                // Add a class to the target container to change its background color
+                container.classList.add("drag-over");
+            });
+
+            drake.on("out", function (el, container) {
+                // Remove the class from the target container when the card is out
+                container.classList.remove("drag-over");
+            });
+
+            drake.on("dragend", function (el) {
+                // Remove the class from all containers when dragging ends
+                document.querySelectorAll(".drag-over").forEach(function (container) {
+                    container.classList.remove("drag-over");
+                });
+            });
             drake.on("drop", function (_el, target, source, sibling) {
                 
-                var isin = _el.querySelector(".card-header").innerText.split(" ")[1];
+                // var isin = _el.querySelector(".card-header").innerText.split(" ")[1];
                 // a component has been dragged & dropped
                 // get the order of the ids from the DOM
                 // var order_ids = Array.from(target.children).map(function (child) {
@@ -29,7 +45,7 @@ window.dash_clientside.clientside = {
                     detail: {
                         sourceContainer: source.id,
                         targetContainer: target.id,
-                        draggedCardISIN: isin
+                        // draggedCardISIN: isin
                     }
                   });
                 target.dispatchEvent(drop_complete)
