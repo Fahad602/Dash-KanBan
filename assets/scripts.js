@@ -49,8 +49,6 @@ window.dash_clientside.clientside = {
                     }
                   });
                 target.dispatchEvent(drop_complete)
-                // How can I trigger an update on the children property
-                // ???
             })
         }, 1)
         return window.dash_clientside.no_update
