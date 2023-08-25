@@ -90,7 +90,7 @@ event = {
     "props": [
         "detail.sourceContainer",
         "detail.targetContainer",
-        "detail.draggedCardISIN",
+        "detail.draggedCardID",
     ],
 }
 
@@ -99,6 +99,7 @@ def generate_card(data):
     card_content = [
         dbc.CardBody(
             [
+                html.P(f"{data.id}", className="cardID"),
                 html.P(f"Type: {data.type}"),
                 html.P(f"Stage: {data.stage}"),
                 html.P(f"Entry Date: {data.entry_datetime}"),
@@ -109,154 +110,156 @@ def generate_card(data):
     return dbc.Card(card_content, className="mb-3")
 
 
-app.layout = html.Div(
-    id="main",
-    style={
-        "display": "flex",
-        "flex-direction": "column",
-        "width": "100%",
-        "padding-left": "15px",
-        "padding-right": "15px",
-        "overflow-y": "hidden",
-    },
-    children=[
-        html.Label(id="order"),
-        html.Div(
-            id="header_container",
-            className="row",
-            style={
-                "display": "flex",
-                "font-weight": "bold",
-                "color": "white",
-                "height": "32px"
-            },
-            children=[
-                html.Div(
-                    "Ideas",
-                    className="col header",
-                ),
-                html.Div(
-                    "Correction of Errors",
-                    className="col header",
-                ),
-                html.Div(
-                    "Short Note",
-                    className="col header",
-                ),
-                html.Div(
-                    "Q&A",
-                    className="col header",
-                ),
-                html.Div(
-                    "Model",
-                    className="col header",
-                ),
-                html.Div(
-                    "Pre Mortem",
-                    className="col header",
-                ),
-                html.Div(
-                    "Full Note",
-                    className="col header",
-                ),
-                html.Div(
-                    "Buy List",
-                    className="col header",
-                ),
-                html.Div(
-                    "Fail List",
-                    className="col header",
-                ),
-            ],
-        ),
-        EventListener(
+def serve_dashboard():
+    return html.Div(
+        id="main",
+        style={
+            "display": "flex",
+            "flexDirection": "column",
+            "width": "100%",
+            "paddingLeft": "15px",
+            "paddingRight": "15px",
+        },
+        children=[
+            html.Label(id="order"),
             html.Div(
-                id="drag_container",
+                id="header_container",
                 className="row",
-                style={"display": "flex", "flex-wrap": "nowrap"},
+                style={
+                    "display": "flex",
+                    "fontWeight": "bold",
+                    "color": "white",
+                    "height": "32px",
+                },
                 children=[
                     html.Div(
-                        id="drag_container1",
-                        className="col custom-col",
-                        children=[
-                            generate_card(card_data)
-                            for card_data in get_cards_by_stage("Ideas")
-                        ],
+                        "Ideas",
+                        className="col header",
                     ),
                     html.Div(
-                        id="drag_container2",
-                        className="col custom-col",
-                        children=[
-                            generate_card(card_data)
-                            for card_data in get_cards_by_stage(
-                                "Correction of Errors Report"
-                            )
-                        ],
+                        "Correction of Errors",
+                        className="col header",
                     ),
                     html.Div(
-                        id="drag_container3",
-                        className="col custom-col",
-                        children=[
-                            generate_card(card_data)
-                            for card_data in get_cards_by_stage("Short Note")
-                        ],
+                        "Short Note",
+                        className="col header",
                     ),
                     html.Div(
-                        id="drag_container4",
-                        className="col custom-col",
-                        children=[
-                            generate_card(card_data)
-                            for card_data in get_cards_by_stage("Q&A")
-                        ],
+                        "Q&A",
+                        className="col header",
                     ),
                     html.Div(
-                        id="drag_container5",
-                        className="col custom-col",
-                        children=[
-                            generate_card(card_data)
-                            for card_data in get_cards_by_stage("Model")
-                        ],
+                        "Model",
+                        className="col header",
                     ),
                     html.Div(
-                        id="drag_container6",
-                        className="col custom-col",
-                        children=[
-                            generate_card(card_data)
-                            for card_data in get_cards_by_stage("Pre Mortem")
-                        ],
+                        "Pre Mortem",
+                        className="col header",
                     ),
                     html.Div(
-                        id="drag_container7",
-                        className="col custom-col",
-                        children=[
-                            generate_card(card_data)
-                            for card_data in get_cards_by_stage("Full Note")
-                        ],
+                        "Full Note",
+                        className="col header",
                     ),
                     html.Div(
-                        id="drag_container8",
-                        className="col custom-col",
-                        children=[
-                            generate_card(card_data)
-                            for card_data in get_cards_by_stage("Buy List")
-                        ],
+                        "Buy List",
+                        className="col header",
                     ),
                     html.Div(
-                        id="drag_container9",
-                        className="col custom-col",
-                        children=[
-                            generate_card(card_data)
-                            for card_data in get_cards_by_stage("Fail List")
-                        ],
+                        "Fail List",
+                        className="col header",
                     ),
                 ],
             ),
-            events=[event],
-            logging=True,
-            id="el",
-        ),
-    ],
-)
+            EventListener(
+                html.Div(
+                    id="drag_container",
+                    className="row",
+                    style={"display": "flex", "flexWrap": "nowrap"},
+                    children=[
+                        html.Div(
+                            id="drag_container1",
+                            className="col custom-col",
+                            children=[
+                                generate_card(card_data)
+                                for card_data in get_cards_by_stage("Ideas")
+                            ],
+                        ),
+                        html.Div(
+                            id="drag_container2",
+                            className="col custom-col",
+                            children=[
+                                generate_card(card_data)
+                                for card_data in get_cards_by_stage(
+                                    "Correction of Errors Report"
+                                )
+                            ],
+                        ),
+                        html.Div(
+                            id="drag_container3",
+                            className="col custom-col",
+                            children=[
+                                generate_card(card_data)
+                                for card_data in get_cards_by_stage("Short Note")
+                            ],
+                        ),
+                        html.Div(
+                            id="drag_container4",
+                            className="col custom-col",
+                            children=[
+                                generate_card(card_data)
+                                for card_data in get_cards_by_stage("Q&A")
+                            ],
+                        ),
+                        html.Div(
+                            id="drag_container5",
+                            className="col custom-col",
+                            children=[
+                                generate_card(card_data)
+                                for card_data in get_cards_by_stage("Model")
+                            ],
+                        ),
+                        html.Div(
+                            id="drag_container6",
+                            className="col custom-col",
+                            children=[
+                                generate_card(card_data)
+                                for card_data in get_cards_by_stage("Pre Mortem")
+                            ],
+                        ),
+                        html.Div(
+                            id="drag_container7",
+                            className="col custom-col",
+                            children=[
+                                generate_card(card_data)
+                                for card_data in get_cards_by_stage("Full Note")
+                            ],
+                        ),
+                        html.Div(
+                            id="drag_container8",
+                            className="col custom-col",
+                            children=[
+                                generate_card(card_data)
+                                for card_data in get_cards_by_stage("Buy List")
+                            ],
+                        ),
+                        html.Div(
+                            id="drag_container9",
+                            className="col custom-col",
+                            children=[
+                                generate_card(card_data)
+                                for card_data in get_cards_by_stage("Fail List")
+                            ],
+                        ),
+                    ],
+                ),
+                events=[event],
+                logging=True,
+                id="el",
+            ),
+        ],
+    )
+
+app.layout = serve_dashboard
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="make_draggable"),
@@ -283,6 +286,33 @@ app.clientside_callback(
 def update_card(nevents, event_data):
     if event_data:
         print(event_data)
+
+        if event_data["detail.sourceContainer"] != event_data["detail.targetContainer"]:
+            card = (
+                session.query(Card)
+                .filter_by(id=event_data["detail.draggedCardID"])
+                .first()
+            )
+            if event_data["detail.targetContainer"] == "drag_container1":
+                card.stage = "Ideas"
+            elif event_data["detail.targetContainer"] == "drag_container2":
+                card.stage = "Correction of Errors Report"
+            elif event_data["detail.targetContainer"] == "drag_container3":
+                card.stage = "Short Note"
+            elif event_data["detail.targetContainer"] == "drag_container4":
+                card.stage = "Q&A"
+            elif event_data["detail.targetContainer"] == "drag_container5":
+                card.stage = "Model"
+            elif event_data["detail.targetContainer"] == "drag_container6":
+                card.stage = "Pre Mortem"
+            elif event_data["detail.targetContainer"] == "drag_container7":
+                card.stage = "Full Note"
+            elif event_data["detail.targetContainer"] == "drag_container8":
+                card.stage = "Buy List"
+            elif event_data["detail.targetContainer"] == "drag_container9":
+                card.stage = "Fail List"
+            session.commit()
+
     return ""
 
 

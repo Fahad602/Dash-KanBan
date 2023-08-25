@@ -2,7 +2,7 @@ if (!window.dash_clientside) {
     window.dash_clientside = {};
 }
 window.dash_clientside.clientside = {
-    make_draggable: function (id, children) {
+    make_draggable: function () {
         let args = Array.from(arguments);
         var els = [];
         setTimeout(function () {
@@ -29,23 +29,14 @@ window.dash_clientside.clientside = {
             });
             drake.on("drop", function (_el, target, source, sibling) {
                 
-                // var isin = _el.querySelector(".card-header").innerText.split(" ")[1];
-                // a component has been dragged & dropped
-                // get the order of the ids from the DOM
-                // var order_ids = Array.from(target.children).map(function (child) {
-                //     return child.id;
-                // });
-                // in place sorting of the children to match the new order
-                // children.sort(function (child1, child2) {
-                //     return order_ids.indexOf(child1.props.id) - order_ids.indexOf(child2.props.id)
-                // });
+                var card_id = _el.querySelector(".cardID").innerText;
 
                 const drop_complete = new CustomEvent('dropcomplete', {
                     bubbles: true,
                     detail: {
                         sourceContainer: source.id,
                         targetContainer: target.id,
-                        // draggedCardISIN: isin
+                        draggedCardID: card_id
                     }
                   });
                 target.dispatchEvent(drop_complete)
