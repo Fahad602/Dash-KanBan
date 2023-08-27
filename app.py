@@ -99,12 +99,17 @@ def generate_card(data):
     card_content = [
         dbc.CardBody(
             [
-                html.P(f"{data.id}", className="cardID"),
-                html.P(f"Type: {data.type}"),
-                html.P(f"Stage: {data.stage}"),
-                html.P(f"Entry Date: {data.entry_datetime}"),
-                # Add more data fields...
-            ]
+                html.P(f"{data.id}", className="cardID", style={"display": "none",}),
+                html.P(f"{data.stock_name}"),
+                html.P([
+                    html.Strong("Analyst: "),html.Span(f"{data.analyst_name}"),
+                    html.Br(),
+                    html.Strong("C Date: "),html.Span(f"{data.entry_datetime}"),
+                    html.Br(),
+                    html.Strong("S Analyst: "),html.Span(f"{data.second_analyst}"),
+                    ]),
+                html.P(f"Due {data.due_date}", style={"textAlign":"right", "marginBottom": 0}),
+            ],
         ),
     ]
     return dbc.Card(card_content, className="mb-3")
