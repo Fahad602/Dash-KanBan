@@ -2,7 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output, State, ClientsideFunction
+from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH
 from dash_extensions import EventListener
 
 from datetime import datetime
@@ -75,6 +75,10 @@ session = Session()
 def get_cards_by_stage(stage):
     return session.query(Card).filter_by(stage=stage).all()
 
+# Query all records
+def get_all_cards():
+    return session.query(Card).all()
+
 
 app = dash.Dash(
     __name__,
@@ -82,6 +86,7 @@ app = dash.Dash(
         "https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"
     ],
     external_stylesheets=[dbc.themes.BOOTSTRAP],
+    suppress_callback_exceptions=True
 )
 
 
@@ -107,7 +112,24 @@ def generate_card(data):
                     html.Strong("C Date: "),html.Span(f"{data.entry_datetime}"),
                     html.Br(),
                     html.Strong("S Analyst: "),html.Span(f"{data.second_analyst}"),
+                    html.Br(),
+                    html.Button("Attachments", id={"type": "show-button", "index": data.id}, n_clicks=0),
                     ]),
+                html.Div(id={"type": "attachments", "index": data.id}, style={"display": "none"}, children=[
+                    # Add the additional fields here, for example:
+                    html.P(["Link 1: ",html.A(data.link1, href=data.link1, target=data.link1)]),
+                    html.P(["Link 2: ",html.A(data.link2, href=data.link2, target=data.link2)]),
+                    dcc.Input(
+                            id={"type": "new-link-input", "index": data.id},
+                            type="text",
+                            placeholder="Enter new link...",
+                        ),
+                    html.Button(
+                        "Save New Link",
+                        id={"type": "save-link-button", "index": data.id},
+                    ),
+                    # Add more fields as needed
+                ]),
                 html.P(f"Due {data.due_date}", style={"textAlign":"right", "marginBottom": 0}),
             ],
         ),
@@ -283,6 +305,17 @@ app.clientside_callback(
     [State("drag_container", "children")],
 )
 
+# Callback to toggle attachments visibility
+@app.callback(
+    Output({"type": "attachments", "index": MATCH}, "style"),
+    Input({"type": "show-button", "index": MATCH}, "n_clicks"),
+    prevent_initial_call=True
+)
+def toggle_attachments(n_clicks):
+    if n_clicks % 2 == 1:
+        return {"display": "block"}  # Show attachments container
+    else:
+        return {"display": "none"}   # Hide attachments container
 
 @app.callback(
     Output("order", "children"),
