@@ -1,3 +1,4 @@
+import json
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -41,6 +42,8 @@ class Card(Base):
     link4 = Column(String)
     link5 = Column(String)
     other = Column(String)
+    primary_analyst_id = Column(Integer, ForeignKey("analyst.id"))
+    secondary_analyst_id = Column(Integer, ForeignKey("analyst.id"))
 
     # Establish a one-to-many relationship with Log table
     logs = relationship("Log", back_populates="card")
@@ -60,6 +63,14 @@ class Log(Base):
     card = relationship("Card", back_populates="logs")
 
 
+# Define Log model
+class Analyst(Base):
+    __tablename__ = "analyst"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+
 # Connect to SQLite database
 engine = create_engine("sqlite:///cards.db", echo=True)
 
@@ -75,6 +86,11 @@ session = Session()
 def get_cards_by_stage(stage):
     return session.query(Card).filter_by(stage=stage).all()
 
+
+def get_analysts():
+    return session.query(Analyst).all()
+
+
 # Query all records
 def get_all_cards():
     return session.query(Card).all()
@@ -86,7 +102,7 @@ app = dash.Dash(
         "https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"
     ],
     external_stylesheets=[dbc.themes.BOOTSTRAP],
-    suppress_callback_exceptions=True
+    suppress_callback_exceptions=True,
 )
 
 
@@ -104,33 +120,159 @@ def generate_card(data):
     card_content = [
         dbc.CardBody(
             [
-                html.P(f"{data.id}", className="cardID", style={"display": "none",}),
+                html.P(
+                    f"{data.id}",
+                    className="cardID",
+                    style={
+                        "display": "none",
+                    },
+                ),
                 html.P(f"{data.stock_name}"),
-                html.P([
-                    html.Strong("Analyst: "),html.Span(f"{data.analyst_name}"),
-                    html.Br(),
-                    html.Strong("C Date: "),html.Span(f"{data.entry_datetime}"),
-                    html.Br(),
-                    html.Strong("S Analyst: "),html.Span(f"{data.second_analyst}"),
-                    html.Br(),
-                    html.Button("Attachments", id={"type": "show-button", "index": data.id}, n_clicks=0),
-                    ]),
-                html.Div(id={"type": "attachments", "index": data.id}, style={"display": "none"}, children=[
-                    # Add the additional fields here, for example:
-                    html.P(["Link 1: ",html.A(data.link1, href=data.link1, target=data.link1)]),
-                    html.P(["Link 2: ",html.A(data.link2, href=data.link2, target=data.link2)]),
-                    dcc.Input(
-                            id={"type": "new-link-input", "index": data.id},
-                            type="text",
-                            placeholder="Enter new link...",
+                html.Br(),
+                html.P([html.Strong("Analyst: "), html.Span(f"{data.analyst_name}")]),
+                html.P([html.Strong("C Date: "), html.Span(f"{data.entry_datetime}")]),
+                html.P(
+                    [
+                        html.Strong("Secondary Analyst: "),
+                        dcc.Dropdown(
+                            id={"type": "secondary-analyst-dropdown", "index": data.id},
+                            options=[
+                                {"label": analyst.name, "value": analyst.id}
+                                for analyst in get_analysts()
+                            ],
+                            value=data.secondary_analyst_id,
                         ),
-                    html.Button(
-                        "Save New Link",
-                        id={"type": "save-link-button", "index": data.id},
-                    ),
-                    # Add more fields as needed
-                ]),
-                html.P(f"Due {data.due_date}", style={"textAlign":"right", "marginBottom": 0}),
+                    ]
+                ),
+                html.P(
+                    [
+                        html.Button(
+                            "Attachments",
+                            id={"type": "show-button", "index": data.id},
+                            n_clicks=0,
+                            style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
+                        ),
+                    ]
+                ),
+                html.Div(
+                    id={"type": "attachments", "index": data.id},
+                    style={"display": "none"},
+                    children=[
+                        html.P([html.A(data.link1, href=data.link1, target=data.link1)])
+                        if data.link1
+                        else html.Div(
+                            id={"type": "link-container", "index": data.id, "attachment-type": "link1"},
+                            children=[
+                                dcc.Input(
+                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "link1"},
+                                    type="text",
+                                    placeholder="Link 1",
+                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
+                                ),
+                                html.Button(
+                                    "Save",
+                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "link1"},
+                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
+                                ),
+                            ]
+                        ),
+                        html.P([html.A(data.link2, href=data.link2, target=data.link2)])
+                        if data.link2
+                        else html.Div(
+                            id={"type": "link-container", "index": data.id, "attachment-type": "link2"},
+                            children=[
+                                dcc.Input(
+                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "link2"},
+                                    type="text",
+                                    placeholder="Link 2",
+                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
+                                ),
+                                html.Button(
+                                    "Save",
+                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "link2"},
+                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
+                                ),
+                            ]
+                        ),
+                        html.P([html.A(data.link3, href=data.link3, target=data.link3)])
+                        if data.link3
+                        else html.Div(
+                            id={"type": "link-container", "index": data.id, "attachment-type": "link3"},
+                            children=[
+                                dcc.Input(
+                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "link3"},
+                                    type="text",
+                                    placeholder="Link 3",
+                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
+                                ),
+                                html.Button(
+                                    "Save",
+                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "link3"},
+                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
+                                ),
+                            ]
+                        ),
+                        html.P([html.A(data.link4, href=data.link4, target=data.link4)])
+                        if data.link4
+                        else html.Div(
+                            id={"type": "link-container", "index": data.id, "attachment-type": "link4"},
+                            children=[
+                                dcc.Input(
+                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "link4"},
+                                    type="text",
+                                    placeholder="Link 4",
+                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
+                                ),
+                                html.Button(
+                                    "Save",
+                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "link4"},
+                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
+                                ),
+                            ]
+                        ),
+                        html.P([html.A(data.link5, href=data.link5, target=data.link5)])
+                        if data.link5
+                        else html.Div(
+                            id={"type": "link-container", "index": data.id, "attachment-type": "link5"},
+                            children=[
+                                dcc.Input(
+                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "link5"},
+                                    type="text",
+                                    placeholder="Link 5",
+                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
+                                ),
+                                html.Button(
+                                    "Save",
+                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "link5"},
+                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
+                                ),
+                            ]
+                        ),
+                        html.P([html.A(data.other, href=data.other, target=data.other)])
+                        if data.other
+                        else html.Div(
+                            id={"type": "link-container", "index": data.id, "attachment-type": "other"},
+                            children=[
+                                dcc.Input(
+                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "other"},
+                                    type="text",
+                                    placeholder="Other",
+                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
+                                ),
+                                html.Button(
+                                    "Save",
+                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "other"},
+                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
+                                ),
+                            ]
+                        ),
+                    ],
+                ),
+                html.Br(),
+                html.P(
+                    f"Due {data.due_date}",
+                    style={"textAlign": "right", "marginBottom": 0},
+                ),
             ],
         ),
     ]
@@ -286,6 +428,7 @@ def serve_dashboard():
         ],
     )
 
+
 app.layout = serve_dashboard
 
 app.clientside_callback(
@@ -305,17 +448,64 @@ app.clientside_callback(
     [State("drag_container", "children")],
 )
 
+
+# Callback to save attachment link
+@app.callback(
+    Output({"type": "link-container", "index": MATCH, "attachment-type": MATCH}, "children"),
+    Input({"type": "save-link-button", "index": MATCH, "attachment-type": MATCH}, "n_clicks"),
+    State({"type": "new-link-input", "index": MATCH, "attachment-type": MATCH}, "value"),
+    prevent_initial_call=True,
+)
+def save_attachment_link(n_clicks, new_link, **kwargs):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+
+    button_id = json.loads(ctx.triggered[0]["prop_id"].split(".")[0])
+    card_id = button_id["index"]
+    attachment_type = button_id["attachment-type"]
+
+    if new_link:
+        card = session.query(Card).get(card_id)
+        setattr(card, attachment_type, new_link)
+        session.commit()
+        return html.P([html.A(new_link, href=new_link, target=new_link)])
+    
+    return dash.no_update
+
+
+@app.callback(
+    Output({"type": "secondary-analyst-dropdown", "index": MATCH}, "value"),
+    Input({"type": "secondary-analyst-dropdown", "index": MATCH}, "value"),
+    prevent_initial_call=True,
+)
+def update_secondary_analyst(selected_analyst_id):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+
+    card_id = json.loads(ctx.triggered[0]["prop_id"].split(".")[0])["index"]
+    card = session.query(Card).get(card_id)
+    card.secondary_analyst_id = selected_analyst_id
+    selected_analyst = session.query(Analyst).get(selected_analyst_id)
+    card.second_analyst = selected_analyst.name
+    session.commit()
+
+    return selected_analyst_id
+
+
 # Callback to toggle attachments visibility
 @app.callback(
     Output({"type": "attachments", "index": MATCH}, "style"),
     Input({"type": "show-button", "index": MATCH}, "n_clicks"),
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
 def toggle_attachments(n_clicks):
     if n_clicks % 2 == 1:
         return {"display": "block"}  # Show attachments container
     else:
-        return {"display": "none"}   # Hide attachments container
+        return {"display": "none"}  # Hide attachments container
+
 
 @app.callback(
     Output("order", "children"),
