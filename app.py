@@ -484,14 +484,16 @@ def update_secondary_analyst(selected_analyst_id):
     if not ctx.triggered:
         return dash.no_update
 
-    card_id = json.loads(ctx.triggered[0]["prop_id"].split(".")[0])["index"]
-    card = session.query(Card).get(card_id)
-    card.secondary_analyst_id = selected_analyst_id
-    selected_analyst = session.query(Analyst).get(selected_analyst_id)
-    card.second_analyst = selected_analyst.name
-    session.commit()
+    if selected_analyst_id:
+        card_id = json.loads(ctx.triggered[0]["prop_id"].split(".")[0])["index"]
+        card = session.query(Card).get(card_id)
+        card.secondary_analyst_id = selected_analyst_id
+        selected_analyst = session.query(Analyst).get(selected_analyst_id)
+        card.second_analyst = selected_analyst.name
+        session.commit()
 
-    return selected_analyst_id
+        return selected_analyst_id
+    return dash.no_update
 
 
 # Callback to toggle attachments visibility
