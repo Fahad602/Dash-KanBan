@@ -5,6 +5,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH
 from dash_extensions import EventListener
+from dash.exceptions import PreventUpdate
 
 from datetime import datetime
 from sqlalchemy import (
@@ -101,7 +102,7 @@ app = dash.Dash(
     external_scripts=[
         "https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"
     ],
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP],
     suppress_callback_exceptions=True,
 )
 
@@ -127,22 +128,208 @@ def generate_card(data):
                         "display": "none",
                     },
                 ),
-                html.P(f"{data.stock_name}"),
+                html.Div(
+                    [
+                        html.P(f"{data.stock_name}"),
+                        html.I(
+                            id={"type": "edit-button", "index": data.id},
+                            className="bi bi-pencil edit-icon",
+                            n_clicks=0,
+                        ),
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(html.Strong("Update Card")),
+                                dbc.ModalBody(
+                                    dbc.Form(
+                                        [
+                                            html.Div(
+                                                [
+                                                    html.Strong("Secondary Analyst"),
+                                                    dcc.Dropdown(
+                                                        id={"type": "secondary_analyst", "index": data.id},
+                                                        options=[
+                                                            {
+                                                                "label": analyst.name,
+                                                                "value": analyst.id,
+                                                            }
+                                                            for analyst in get_analysts()
+                                                        ],
+                                                    ),
+                                                ],
+                                                style={"padding": "5px"},
+                                            ),
+                                            html.Div(
+                                                [
+                                                    html.Strong("Attachments"),
+                                                    html.Div(
+                                                        [
+                                                            dbc.Input(
+                                                                id={"type": "link1", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Link 1",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "50%",
+                                                                    "marginRight": "5px",
+                                                                },
+                                                            ),
+                                                            dbc.Input(
+                                                                id={"type": "link1_name", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Display Name",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "40%",
+                                                                },
+                                                            ),
+                                                        ],
+                                                        style={"padding": "3px"},
+                                                    ),
+                                                    html.Div(
+                                                        [
+                                                            dbc.Input(
+                                                                id={"type": "link2", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Link 2",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "50%",
+                                                                    "marginRight": "5px",
+                                                                },
+                                                            ),
+                                                            dbc.Input(
+                                                                id={"type": "link2_name", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Display Name",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "40%",
+                                                                },
+                                                            ),
+                                                        ],
+                                                        style={"padding": "3px"},
+                                                    ),
+                                                    html.Div(
+                                                        [
+                                                            dbc.Input(
+                                                                id={"type": "link3", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Link 3",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "50%",
+                                                                    "marginRight": "5px",
+                                                                },
+                                                            ),
+                                                            dbc.Input(
+                                                                id={"type": "link3_name", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Display Name",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "40%",
+                                                                },
+                                                            ),
+                                                        ],
+                                                        style={"padding": "3px"},
+                                                    ),
+                                                    html.Div(
+                                                        [
+                                                            dbc.Input(
+                                                                id={"type": "link4", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Link 4",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "50%",
+                                                                    "marginRight": "5px",
+                                                                },
+                                                            ),
+                                                            dbc.Input(
+                                                                id={"type": "link4_name", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Display Name",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "40%",
+                                                                },
+                                                            ),
+                                                        ],
+                                                        style={"padding": "3px"},
+                                                    ),
+                                                    html.Div(
+                                                        [
+                                                            dbc.Input(
+                                                                id={"type": "link5", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Link 5",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "50%",
+                                                                    "marginRight": "5px",
+                                                                },
+                                                            ),
+                                                            dbc.Input(
+                                                                id={"type": "link5_name", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Display Name",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "40%",
+                                                                },
+                                                            ),
+                                                        ],
+                                                        style={"padding": "3px"},
+                                                    ),
+                                                    html.Div(
+                                                        [
+                                                            dbc.Input(
+                                                                id={"type": "other", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Other",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "50%",
+                                                                    "marginRight": "5px",
+                                                                },
+                                                            ),
+                                                            dbc.Input(
+                                                                id={"type": "other_name", "index": data.id},
+                                                                type="text",
+                                                                placeholder="Display Name",
+                                                                style={
+                                                                    "display": "inline-block",
+                                                                    "width": "40%",
+                                                                },
+                                                            ),
+                                                        ],
+                                                        style={"padding": "3px"},
+                                                    ),
+                                                ],
+                                                style={"padding": "5px"},
+                                            ),
+                                        ]
+                                    )
+                                ),
+                                dbc.ModalFooter(
+                                    dbc.Button(
+                                        "Update",
+                                        id={"type": "update-button", "index": data.id},
+                                        color="#e6687d",
+                                        style={"backgroundColor": "#e6687d"},
+                                    ),
+                                ),
+                            ],
+                            id={"type": "update_card_modal", "index": data.id},
+                        ),
+                    ],
+                    style={"display": "flex", "justifyContent": "space-between"},
+                ),
                 html.Br(),
                 html.P([html.Strong("Analyst: "), html.Span(f"{data.analyst_name}")]),
                 html.P([html.Strong("C Date: "), html.Span(f"{data.entry_datetime}")]),
                 html.P(
-                    [
-                        html.Strong("Secondary Analyst: "),
-                        dcc.Dropdown(
-                            id={"type": "secondary-analyst-dropdown", "index": data.id},
-                            options=[
-                                {"label": analyst.name, "value": analyst.id}
-                                for analyst in get_analysts()
-                            ],
-                            value=data.secondary_analyst_id,
-                        ),
-                    ]
+                    [html.Strong("Sec Analyst: "), html.Span(f"{data.second_analyst}")]
                 ),
                 html.P(
                     [
@@ -150,7 +337,12 @@ def generate_card(data):
                             "Attachments",
                             id={"type": "show-button", "index": data.id},
                             n_clicks=0,
-                            style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
+                            style={
+                                "background": "transparent",
+                                "margin": "2px",
+                                "borderRadius": "3px",
+                                "border": "1px solid grey",
+                            },
                         ),
                     ]
                 ),
@@ -158,113 +350,23 @@ def generate_card(data):
                     id={"type": "attachments", "index": data.id},
                     style={"display": "none"},
                     children=[
-                        html.P([html.A(data.link1, href=data.link1, target=data.link1)])
-                        if data.link1
-                        else html.Div(
-                            id={"type": "link-container", "index": data.id, "attachment-type": "link1"},
-                            children=[
-                                dcc.Input(
-                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "link1"},
-                                    type="text",
-                                    placeholder="Link 1",
-                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
-                                ),
-                                html.Button(
-                                    "Save",
-                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "link1"},
-                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
-                                ),
-                            ]
+                        html.P(
+                            [html.A(data.link1, href=data.link1, target=data.link1)]
                         ),
-                        html.P([html.A(data.link2, href=data.link2, target=data.link2)])
-                        if data.link2
-                        else html.Div(
-                            id={"type": "link-container", "index": data.id, "attachment-type": "link2"},
-                            children=[
-                                dcc.Input(
-                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "link2"},
-                                    type="text",
-                                    placeholder="Link 2",
-                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
-                                ),
-                                html.Button(
-                                    "Save",
-                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "link2"},
-                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
-                                ),
-                            ]
+                        html.P(
+                            [html.A(data.link2, href=data.link2, target=data.link2)]
                         ),
-                        html.P([html.A(data.link3, href=data.link3, target=data.link3)])
-                        if data.link3
-                        else html.Div(
-                            id={"type": "link-container", "index": data.id, "attachment-type": "link3"},
-                            children=[
-                                dcc.Input(
-                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "link3"},
-                                    type="text",
-                                    placeholder="Link 3",
-                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
-                                ),
-                                html.Button(
-                                    "Save",
-                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "link3"},
-                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
-                                ),
-                            ]
+                        html.P(
+                            [html.A(data.link3, href=data.link3, target=data.link3)]
                         ),
-                        html.P([html.A(data.link4, href=data.link4, target=data.link4)])
-                        if data.link4
-                        else html.Div(
-                            id={"type": "link-container", "index": data.id, "attachment-type": "link4"},
-                            children=[
-                                dcc.Input(
-                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "link4"},
-                                    type="text",
-                                    placeholder="Link 4",
-                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
-                                ),
-                                html.Button(
-                                    "Save",
-                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "link4"},
-                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
-                                ),
-                            ]
+                        html.P(
+                            [html.A(data.link4, href=data.link4, target=data.link4)]
                         ),
-                        html.P([html.A(data.link5, href=data.link5, target=data.link5)])
-                        if data.link5
-                        else html.Div(
-                            id={"type": "link-container", "index": data.id, "attachment-type": "link5"},
-                            children=[
-                                dcc.Input(
-                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "link5"},
-                                    type="text",
-                                    placeholder="Link 5",
-                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
-                                ),
-                                html.Button(
-                                    "Save",
-                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "link5"},
-                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
-                                ),
-                            ]
+                        html.P(
+                            [html.A(data.link5, href=data.link5, target=data.link5)]
                         ),
-                        html.P([html.A(data.other, href=data.other, target=data.other)])
-                        if data.other
-                        else html.Div(
-                            id={"type": "link-container", "index": data.id, "attachment-type": "other"},
-                            children=[
-                                dcc.Input(
-                                    id={"type": "new-link-input", "index": data.id, "attachment-type": "other"},
-                                    type="text",
-                                    placeholder="Other",
-                                    style={"width": "69%", "display": "inline", "margin": '2px', "borderRadius": '3px', "border": 0},
-                                ),
-                                html.Button(
-                                    "Save",
-                                    id={"type": "save-link-button", "index": data.id, "attachment-type": "other"},
-                                    style={"background": "transparent", "margin": '2px', "borderRadius": '3px', "border": "1px solid grey"},
-                                ),
-                            ]
+                        html.P(
+                            [html.A(data.other, href=data.other, target=data.other)]
                         ),
                     ],
                 ),
@@ -274,6 +376,7 @@ def generate_card(data):
                     style={"textAlign": "right", "marginBottom": 0},
                 ),
             ],
+            id="test",
         ),
     ]
     return dbc.Card(card_content, className="mb-3")
@@ -302,8 +405,16 @@ def serve_dashboard():
                 },
                 children=[
                     html.Div(
-                        "Ideas",
                         className="col header",
+                        style={"justifyContent": "space-between"},
+                        children=[
+                            html.Span(""),
+                            html.Span("Ideas"),
+                            html.I(
+                                id="open_create_card_modal_button",
+                                className="bi bi-plus-circle add-button",
+                            ),
+                        ],
                     ),
                     html.Div(
                         "Correction of Errors",
@@ -425,8 +536,226 @@ def serve_dashboard():
                 logging=True,
                 id="el",
             ),
+            create_card_modal,
         ],
     )
+
+
+create_card_modal = dbc.Modal(
+    [
+        dbc.ModalHeader(html.Strong("Add New Idea")),
+        dbc.ModalBody(
+            dbc.Form(
+                [
+                    html.Div(
+                        [
+                            html.Strong("Stock Name"),
+                            dbc.Input(id="stock_name", type="text"),
+                        ],
+                        style={"padding": "5px"},
+                    ),
+                    html.Div(
+                        [
+                            html.Strong("Due Date"),
+                            dcc.DatePickerSingle(
+                                id="due_date",
+                                display_format="YYYY-MM-DD",
+                                date=datetime.now().date(),
+                                style={"display": "block"},
+                            ),
+                        ],
+                        style={"padding": "5px"},
+                    ),
+                    html.Div(
+                        [
+                            html.Strong("Primary Analyst"),
+                            dcc.Dropdown(
+                                id="primary_analyst",
+                                options=[
+                                    {"label": analyst.name, "value": analyst.id}
+                                    for analyst in get_analysts()
+                                ],
+                            ),
+                        ],
+                        style={"padding": "5px"},
+                    ),
+                    html.Div(
+                        [
+                            html.Strong("Secondary Analyst"),
+                            dcc.Dropdown(
+                                id="secondary_analyst",
+                                options=[
+                                    {"label": analyst.name, "value": analyst.id}
+                                    for analyst in get_analysts()
+                                ],
+                            ),
+                        ],
+                        style={"padding": "5px"},
+                    ),
+                    html.Div(
+                        [
+                            html.Strong("Attachments"),
+                            html.Div(
+                                [
+                                    dbc.Input(
+                                        id="link1",
+                                        type="text",
+                                        placeholder="Link 1",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "50%",
+                                            "marginRight": "5px",
+                                        },
+                                    ),
+                                    dbc.Input(
+                                        id="link1_name",
+                                        type="text",
+                                        placeholder="Display Name",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "40%",
+                                        },
+                                    ),
+                                ],
+                                style={"padding": "3px"},
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Input(
+                                        id="link2",
+                                        type="text",
+                                        placeholder="Link 2",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "50%",
+                                            "marginRight": "5px",
+                                        },
+                                    ),
+                                    dbc.Input(
+                                        id="link2_name",
+                                        type="text",
+                                        placeholder="Display Name",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "40%",
+                                        },
+                                    ),
+                                ],
+                                style={"padding": "3px"},
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Input(
+                                        id="link3",
+                                        type="text",
+                                        placeholder="Link 3",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "50%",
+                                            "marginRight": "5px",
+                                        },
+                                    ),
+                                    dbc.Input(
+                                        id="link3_name",
+                                        type="text",
+                                        placeholder="Display Name",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "40%",
+                                        },
+                                    ),
+                                ],
+                                style={"padding": "3px"},
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Input(
+                                        id="link4",
+                                        type="text",
+                                        placeholder="Link 4",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "50%",
+                                            "marginRight": "5px",
+                                        },
+                                    ),
+                                    dbc.Input(
+                                        id="link4_name",
+                                        type="text",
+                                        placeholder="Display Name",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "40%",
+                                        },
+                                    ),
+                                ],
+                                style={"padding": "3px"},
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Input(
+                                        id="link5",
+                                        type="text",
+                                        placeholder="Link 5",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "50%",
+                                            "marginRight": "5px",
+                                        },
+                                    ),
+                                    dbc.Input(
+                                        id="link5_name",
+                                        type="text",
+                                        placeholder="Display Name",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "40%",
+                                        },
+                                    ),
+                                ],
+                                style={"padding": "3px"},
+                            ),
+                            html.Div(
+                                [
+                                    dbc.Input(
+                                        id="other",
+                                        type="text",
+                                        placeholder="Other",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "50%",
+                                            "marginRight": "5px",
+                                        },
+                                    ),
+                                    dbc.Input(
+                                        id="other_name",
+                                        type="text",
+                                        placeholder="Display Name",
+                                        style={
+                                            "display": "inline-block",
+                                            "width": "40%",
+                                        },
+                                    ),
+                                ],
+                                style={"padding": "3px"},
+                            ),
+                        ],
+                        style={"padding": "5px"},
+                    ),
+                ]
+            )
+        ),
+        dbc.ModalFooter(
+            dbc.Button(
+                "Add",
+                id="create_card_button",
+                color="#e6687d",
+                style={"backgroundColor": "#e6687d"},
+            ),
+        ),
+    ],
+    id="create_card_modal",
+)
 
 
 app.layout = serve_dashboard
@@ -449,51 +778,142 @@ app.clientside_callback(
 )
 
 
-# Callback to save attachment link
 @app.callback(
-    Output({"type": "link-container", "index": MATCH, "attachment-type": MATCH}, "children"),
-    Input({"type": "save-link-button", "index": MATCH, "attachment-type": MATCH}, "n_clicks"),
-    State({"type": "new-link-input", "index": MATCH, "attachment-type": MATCH}, "value"),
+    Output({"type": "update_card_modal", "index": MATCH}, "is_open"),
+    Output({"type": "secondary_analyst", "index": MATCH}, "value"),
+    Output({"type": "link1", "index": MATCH}, "value"),
+    Output({"type": "link1_name", "index": MATCH}, "value"),
+    Output({"type": "link2", "index": MATCH}, "value"),
+    Output({"type": "link2_name", "index": MATCH}, "value"),
+    Output({"type": "link3", "index": MATCH}, "value"),
+    Output({"type": "link3_name", "index": MATCH}, "value"),
+    Output({"type": "link4", "index": MATCH}, "value"),
+    Output({"type": "link4_name", "index": MATCH}, "value"),
+    Output({"type": "link5", "index": MATCH}, "value"),
+    Output({"type": "link5_name", "index": MATCH}, "value"),
+    Output({"type": "other", "index": MATCH}, "value"),
+    Output({"type": "other_name", "index": MATCH}, "value"),
+    Input({"type": "edit-button", "index": MATCH}, "n_clicks"),
     prevent_initial_call=True,
 )
-def save_attachment_link(n_clicks, new_link, **kwargs):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return dash.no_update
+def open_update_card_modal(edit_n_clicks):
+    if edit_n_clicks:
 
-    button_id = json.loads(ctx.triggered[0]["prop_id"].split(".")[0])
-    card_id = button_id["index"]
-    attachment_type = button_id["attachment-type"]
+        card_id = json.loads(dash.callback_context.triggered[0]["prop_id"].split(".")[0])["index"]
+        card = session.query(Card).filter_by(id=card_id).first()
 
-    if new_link:
-        card = session.query(Card).get(card_id)
-        setattr(card, attachment_type, new_link)
-        session.commit()
-        return html.P([html.A(new_link, href=new_link, target=new_link)])
-    
-    return dash.no_update
+        return (
+            True,
+            card.second_analyst,
+            card.link1,
+            card.link1,
+            card.link2,
+            card.link2,
+            card.link3,
+            card.link3,
+            card.link4,
+            card.link4,
+            card.link5,
+            card.link5,
+            card.other,
+            card.other,
+        )
+    return (
+        False,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+
 
 
 @app.callback(
-    Output({"type": "secondary-analyst-dropdown", "index": MATCH}, "value"),
-    Input({"type": "secondary-analyst-dropdown", "index": MATCH}, "value"),
+    Output("create_card_modal", "is_open"),
+    Output("drag_container1", "children"),
+    Output("open_create_card_modal_button", "n_clicks"),
+    [
+        Input("create_card_button", "n_clicks"),
+        Input("open_create_card_modal_button", "n_clicks"),
+    ],
+    [
+        State("stock_name", "value"),
+        State("due_date", "date"),
+        State("primary_analyst", "value"),
+        State("secondary_analyst", "value"),
+        State("link1", "value"),
+        State("link1_name", "value"),
+        State("link2", "value"),
+        State("link2_name", "value"),
+        State("link3", "value"),
+        State("link3_name", "value"),
+        State("link4", "value"),
+        State("link4_name", "value"),
+        State("link5", "value"),
+        State("link5_name", "value"),
+        State("other", "value"),
+        State("other_name", "value"),
+        State("drag_container1", "children"),
+    ],
     prevent_initial_call=True,
 )
-def update_secondary_analyst(selected_analyst_id):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return dash.no_update
+def add_new_card(
+    n_clicks,
+    open_modal_n_clicks,
+    stock_name,
+    due_date,
+    primary_analyst,
+    secondary_analyst,
+    link1,
+    link1_name,
+    link2,
+    link2_name,
+    link3,
+    link3_name,
+    link4,
+    link4_name,
+    link5,
+    link5_name,
+    other,
+    other_name,
+    drag_container1_children,
+):
+    if open_modal_n_clicks:
+        return True, drag_container1_children, 0
 
-    if selected_analyst_id:
-        card_id = json.loads(ctx.triggered[0]["prop_id"].split(".")[0])["index"]
-        card = session.query(Card).get(card_id)
-        card.secondary_analyst_id = selected_analyst_id
-        selected_analyst = session.query(Analyst).get(selected_analyst_id)
-        card.second_analyst = selected_analyst.name
+    if n_clicks:
+        if not stock_name:
+            return PreventUpdate, drag_container1_children, 0
+
+        new_card = Card(
+            stage="Ideas",
+            stock_name=stock_name,
+            due_date=due_date,
+            analyst_name=primary_analyst,
+            second_analyst=secondary_analyst,
+            link1=link1,
+            link2=link2,
+            link3=link3,
+            link4=link4,
+            link5=link5,
+            other=other,
+        )
+        session.add(new_card)
         session.commit()
 
-        return selected_analyst_id
-    return dash.no_update
+        updated_children = [generate_card(new_card)] + drag_container1_children
+        return False, updated_children, 0
+
+    return False, drag_container1_children, 0
 
 
 # Callback to toggle attachments visibility
@@ -515,8 +935,6 @@ def toggle_attachments(n_clicks):
 )
 def update_card(nevents, event_data):
     if event_data:
-        print(event_data)
-
         if event_data["detail.sourceContainer"] != event_data["detail.targetContainer"]:
             card = (
                 session.query(Card)

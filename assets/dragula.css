@@ -68,9 +68,38 @@ html body{
   background-color: rgb(227,246,220); /* Change the background color */
 }
 
-
 .card-body {
   background-color: #d6ecf2;
   padding: 6px;
   /* border-left: 3px solid #0098ca; */
+}
+
+.add-button {
+  margin-right: 3px;
+  color:#e6687d;
+  font-size: 20px;
+}
+.add-button:hover {
+  color: red;
+  cursor: pointer;
+}
+
+.modal-header {
+  background-color: #507299;
+  color: white
+}
+.modal-footer {
+  background-color: #507299;
+  color: white
+}
+.modal-content{
+  border: 0px;
+}
+
+.edit-icon {
+  color:#e6687d;
+}
+.edit-icon:hover {
+  color: red;
+  cursor: pointer;
 }
