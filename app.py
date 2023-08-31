@@ -43,6 +43,12 @@ class Card(Base):
     link4 = Column(String)
     link5 = Column(String)
     other = Column(String)
+    link1_name = Column(String)
+    link2_name = Column(String)
+    link3_name = Column(String)
+    link4_name = Column(String)
+    link5_name = Column(String)
+    other_name = Column(String)
     primary_analyst_id = Column(Integer, ForeignKey("analyst.id"))
     secondary_analyst_id = Column(Integer, ForeignKey("analyst.id"))
 
@@ -351,22 +357,22 @@ def generate_card(data):
                     style={"display": "none"},
                     children=[
                         html.P(
-                            [html.A(data.link1, href=data.link1, target=data.link1)]
+                            [html.A(data.link1_name, href=data.link1, target=data.link1)]
                         ),
                         html.P(
-                            [html.A(data.link2, href=data.link2, target=data.link2)]
+                            [html.A(data.link2_name, href=data.link2, target=data.link2)]
                         ),
                         html.P(
-                            [html.A(data.link3, href=data.link3, target=data.link3)]
+                            [html.A(data.link3_name, href=data.link3, target=data.link3)]
                         ),
                         html.P(
-                            [html.A(data.link4, href=data.link4, target=data.link4)]
+                            [html.A(data.link4_name, href=data.link4, target=data.link4)]
                         ),
                         html.P(
-                            [html.A(data.link5, href=data.link5, target=data.link5)]
+                            [html.A(data.link5_name, href=data.link5, target=data.link5)]
                         ),
                         html.P(
-                            [html.A(data.other, href=data.other, target=data.other)]
+                            [html.A(data.other_name, href=data.other, target=data.other)]
                         ),
                     ],
                 ),
@@ -376,7 +382,6 @@ def generate_card(data):
                     style={"textAlign": "right", "marginBottom": 0},
                 ),
             ],
-            id="test",
         ),
     ]
     return dbc.Card(card_content, className="mb-3")
@@ -793,31 +798,69 @@ app.clientside_callback(
     Output({"type": "link5_name", "index": MATCH}, "value"),
     Output({"type": "other", "index": MATCH}, "value"),
     Output({"type": "other_name", "index": MATCH}, "value"),
+    Output({"type": "edit-button", "index": MATCH}, "n_clicks"),
+    Output({"type": "update-button", "index": MATCH}, "n_clicks"),
     Input({"type": "edit-button", "index": MATCH}, "n_clicks"),
+    Input({"type": "update-button", "index": MATCH}, "n_clicks"),
+    State({"type": "secondary_analyst", "index": MATCH}, "value"),
+    State({"type": "link1", "index": MATCH}, "value"),
+    State({"type": "link1_name", "index": MATCH}, "value"),
+    State({"type": "link2", "index": MATCH}, "value"),
+    State({"type": "link2_name", "index": MATCH}, "value"),
+    State({"type": "link3", "index": MATCH}, "value"),
+    State({"type": "link3_name", "index": MATCH}, "value"),
+    State({"type": "link4", "index": MATCH}, "value"),
+    State({"type": "link4_name", "index": MATCH}, "value"),
+    State({"type": "link5", "index": MATCH}, "value"),
+    State({"type": "link5_name", "index": MATCH}, "value"),
+    State({"type": "other", "index": MATCH}, "value"),
+    State({"type": "other_name", "index": MATCH}, "value"),
     prevent_initial_call=True,
 )
-def open_update_card_modal(edit_n_clicks):
+def open_update_card_modal(edit_n_clicks, update_n_clicks, secondary_analyst, link1, link1_name, link2, link2_name, link3, link3_name, link4, link4_name, link5, link5_name, other, other_name):
     if edit_n_clicks:
-
         card_id = json.loads(dash.callback_context.triggered[0]["prop_id"].split(".")[0])["index"]
         card = session.query(Card).filter_by(id=card_id).first()
 
         return (
             True,
-            card.second_analyst,
+            card.secondary_analyst_id,
             card.link1,
-            card.link1,
+            card.link1_name,
             card.link2,
-            card.link2,
+            card.link2_name,
             card.link3,
-            card.link3,
+            card.link3_name,
             card.link4,
-            card.link4,
+            card.link4_name,
             card.link5,
-            card.link5,
+            card.link5_name,
             card.other,
-            card.other,
+            card.other_name,
+            0,
+            0,
         )
+    if update_n_clicks:
+        card_id = json.loads(dash.callback_context.triggered[0]["prop_id"].split(".")[0])["index"]
+        card = session.query(Card).filter_by(id=card_id).first()
+        s_analyst = session.query(Analyst).filter_by(id=secondary_analyst).first()
+
+        card.secondary_analyst_id = secondary_analyst
+        card.second_analyst = s_analyst.name
+        card.link1 = link1 
+        card.link1_name = link1_name 
+        card.link2 = link2 
+        card.link2_name = link2_name 
+        card.link3 = link3 
+        card.link3_name = link3_name 
+        card.link4 = link4 
+        card.link4_name = link4_name 
+        card.link5 = link5 
+        card.link5_name = link5_name 
+        card.other = other 
+        card.other_name = other_name 
+
+
     return (
         False,
         None,
@@ -833,6 +876,8 @@ def open_update_card_modal(edit_n_clicks):
         None,
         None,
         None,
+        0,
+        0,
     )
 
 
@@ -893,19 +938,30 @@ def add_new_card(
     if n_clicks:
         if not stock_name:
             return PreventUpdate, drag_container1_children, 0
+        
+        p_analyst = session.query(Analyst).filter_by(id=primary_analyst).first()
+        s_analyst = session.query(Analyst).filter_by(id=secondary_analyst).first()
 
         new_card = Card(
             stage="Ideas",
             stock_name=stock_name,
             due_date=due_date,
-            analyst_name=primary_analyst,
-            second_analyst=secondary_analyst,
+            primary_analyst_id=primary_analyst,
+            secondary_analyst_id=secondary_analyst,
+            analyst_name=p_analyst.name,
+            second_analyst=s_analyst.name,
             link1=link1,
             link2=link2,
             link3=link3,
             link4=link4,
             link5=link5,
             other=other,
+            link1_name=link1_name,
+            link2_name=link2_name,
+            link3_name=link3_name,
+            link4_name=link4_name,
+            link5_name=link5_name,
+            other_name=other_name,
         )
         session.add(new_card)
         session.commit()
