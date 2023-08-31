@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH
 from dash_extensions import EventListener
 from dash.exceptions import PreventUpdate
 
-from datetime import datetime
+from datetime import date, datetime
 from sqlalchemy import (
     create_engine,
     Column,
@@ -15,6 +15,7 @@ from sqlalchemy import (
     String,
     DateTime,
     ForeignKey,
+    desc
 )
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm import declarative_base
@@ -30,7 +31,7 @@ class Card(Base):
     id = Column(Integer, primary_key=True)
     type = Column(String, default="New Ideas")
     stage = Column(String)
-    entry_datetime = Column(String, default=datetime.now)
+    entry_datetime = Column(String, default=date.today)
     stock_name = Column(String)
     due_date = Column(String)
     analyst_name = Column(String)
@@ -91,16 +92,12 @@ session = Session()
 
 # Query records for each stage
 def get_cards_by_stage(stage):
-    return session.query(Card).filter_by(stage=stage).all()
+    return session.query(Card).filter_by(stage=stage).order_by(desc(Card.id)).all()
 
 
 def get_analysts():
     return session.query(Analyst).all()
 
-
-# Query all records
-def get_all_cards():
-    return session.query(Card).all()
 
 
 app = dash.Dash(
@@ -123,7 +120,7 @@ event = {
 }
 
 
-def generate_card(data):
+def generate_card_body(data):
     card_content = [
         dbc.CardBody(
             [
@@ -152,7 +149,10 @@ def generate_card(data):
                                                 [
                                                     html.Strong("Secondary Analyst"),
                                                     dcc.Dropdown(
-                                                        id={"type": "secondary_analyst", "index": data.id},
+                                                        id={
+                                                            "type": "secondary_analyst",
+                                                            "index": data.id,
+                                                        },
                                                         options=[
                                                             {
                                                                 "label": analyst.name,
@@ -170,7 +170,10 @@ def generate_card(data):
                                                     html.Div(
                                                         [
                                                             dbc.Input(
-                                                                id={"type": "link1", "index": data.id},
+                                                                id={
+                                                                    "type": "link1",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Link 1",
                                                                 style={
@@ -180,7 +183,10 @@ def generate_card(data):
                                                                 },
                                                             ),
                                                             dbc.Input(
-                                                                id={"type": "link1_name", "index": data.id},
+                                                                id={
+                                                                    "type": "link1_name",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Display Name",
                                                                 style={
@@ -194,7 +200,10 @@ def generate_card(data):
                                                     html.Div(
                                                         [
                                                             dbc.Input(
-                                                                id={"type": "link2", "index": data.id},
+                                                                id={
+                                                                    "type": "link2",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Link 2",
                                                                 style={
@@ -204,7 +213,10 @@ def generate_card(data):
                                                                 },
                                                             ),
                                                             dbc.Input(
-                                                                id={"type": "link2_name", "index": data.id},
+                                                                id={
+                                                                    "type": "link2_name",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Display Name",
                                                                 style={
@@ -218,7 +230,10 @@ def generate_card(data):
                                                     html.Div(
                                                         [
                                                             dbc.Input(
-                                                                id={"type": "link3", "index": data.id},
+                                                                id={
+                                                                    "type": "link3",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Link 3",
                                                                 style={
@@ -228,7 +243,10 @@ def generate_card(data):
                                                                 },
                                                             ),
                                                             dbc.Input(
-                                                                id={"type": "link3_name", "index": data.id},
+                                                                id={
+                                                                    "type": "link3_name",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Display Name",
                                                                 style={
@@ -242,7 +260,10 @@ def generate_card(data):
                                                     html.Div(
                                                         [
                                                             dbc.Input(
-                                                                id={"type": "link4", "index": data.id},
+                                                                id={
+                                                                    "type": "link4",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Link 4",
                                                                 style={
@@ -252,7 +273,10 @@ def generate_card(data):
                                                                 },
                                                             ),
                                                             dbc.Input(
-                                                                id={"type": "link4_name", "index": data.id},
+                                                                id={
+                                                                    "type": "link4_name",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Display Name",
                                                                 style={
@@ -266,7 +290,10 @@ def generate_card(data):
                                                     html.Div(
                                                         [
                                                             dbc.Input(
-                                                                id={"type": "link5", "index": data.id},
+                                                                id={
+                                                                    "type": "link5",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Link 5",
                                                                 style={
@@ -276,7 +303,10 @@ def generate_card(data):
                                                                 },
                                                             ),
                                                             dbc.Input(
-                                                                id={"type": "link5_name", "index": data.id},
+                                                                id={
+                                                                    "type": "link5_name",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Display Name",
                                                                 style={
@@ -290,7 +320,10 @@ def generate_card(data):
                                                     html.Div(
                                                         [
                                                             dbc.Input(
-                                                                id={"type": "other", "index": data.id},
+                                                                id={
+                                                                    "type": "other",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Other",
                                                                 style={
@@ -300,7 +333,10 @@ def generate_card(data):
                                                                 },
                                                             ),
                                                             dbc.Input(
-                                                                id={"type": "other_name", "index": data.id},
+                                                                id={
+                                                                    "type": "other_name",
+                                                                    "index": data.id,
+                                                                },
                                                                 type="text",
                                                                 placeholder="Display Name",
                                                                 style={
@@ -357,34 +393,73 @@ def generate_card(data):
                     style={"display": "none"},
                     children=[
                         html.P(
-                            [html.A(data.link1_name, href=data.link1, target=data.link1)]
+                            [
+                                html.A(
+                                    data.link1_name, href=data.link1, target=data.link1
+                                )
+                            ]
                         ),
                         html.P(
-                            [html.A(data.link2_name, href=data.link2, target=data.link2)]
+                            [
+                                html.A(
+                                    data.link2_name, href=data.link2, target=data.link2
+                                )
+                            ]
                         ),
                         html.P(
-                            [html.A(data.link3_name, href=data.link3, target=data.link3)]
+                            [
+                                html.A(
+                                    data.link3_name, href=data.link3, target=data.link3
+                                )
+                            ]
                         ),
                         html.P(
-                            [html.A(data.link4_name, href=data.link4, target=data.link4)]
+                            [
+                                html.A(
+                                    data.link4_name, href=data.link4, target=data.link4
+                                )
+                            ]
                         ),
                         html.P(
-                            [html.A(data.link5_name, href=data.link5, target=data.link5)]
+                            [
+                                html.A(
+                                    data.link5_name, href=data.link5, target=data.link5
+                                )
+                            ]
                         ),
                         html.P(
-                            [html.A(data.other_name, href=data.other, target=data.other)]
+                            [
+                                html.A(
+                                    data.other_name, href=data.other, target=data.other
+                                )
+                            ]
                         ),
                     ],
                 ),
                 html.Br(),
                 html.P(
-                    f"Due {data.due_date}",
+                    [
+                        html.I(
+                            className="bi bi-clock",
+                            style={"margin":"8px"},
+
+                        ),
+                        f"{data.due_date}",
+                    ],
                     style={"textAlign": "right", "marginBottom": 0},
                 ),
             ],
         ),
     ]
-    return dbc.Card(card_content, className="mb-3")
+    return card_content
+
+
+def generate_card(data):
+    return dbc.Card(
+        generate_card_body(data),
+        className="mb-3",
+        id={"type": "card_body", "index": data.id},
+    )
 
 
 def serve_dashboard():
@@ -523,16 +598,16 @@ def serve_dashboard():
                             id="drag_container8",
                             className="col custom-col",
                             children=[
-                                generate_card(card_data)
-                                for card_data in get_cards_by_stage("Buy List")
+                                # generate_card(card_data)
+                                # for card_data in get_cards_by_stage("Buy List")
                             ],
                         ),
                         html.Div(
                             id="drag_container9",
                             className="col custom-col",
                             children=[
-                                generate_card(card_data)
-                                for card_data in get_cards_by_stage("Fail List")
+                                # generate_card(card_data)
+                                # for card_data in get_cards_by_stage("Fail List")
                             ],
                         ),
                     ],
@@ -800,6 +875,7 @@ app.clientside_callback(
     Output({"type": "other_name", "index": MATCH}, "value"),
     Output({"type": "edit-button", "index": MATCH}, "n_clicks"),
     Output({"type": "update-button", "index": MATCH}, "n_clicks"),
+    Output({"type": "card_body", "index": MATCH}, "children"),
     Input({"type": "edit-button", "index": MATCH}, "n_clicks"),
     Input({"type": "update-button", "index": MATCH}, "n_clicks"),
     State({"type": "secondary_analyst", "index": MATCH}, "value"),
@@ -815,11 +891,31 @@ app.clientside_callback(
     State({"type": "link5_name", "index": MATCH}, "value"),
     State({"type": "other", "index": MATCH}, "value"),
     State({"type": "other_name", "index": MATCH}, "value"),
+    State({"type": "card_body", "index": MATCH}, "children"),
     prevent_initial_call=True,
 )
-def open_update_card_modal(edit_n_clicks, update_n_clicks, secondary_analyst, link1, link1_name, link2, link2_name, link3, link3_name, link4, link4_name, link5, link5_name, other, other_name):
+def open_update_card_modal(
+    edit_n_clicks,
+    update_n_clicks,
+    secondary_analyst,
+    link1,
+    link1_name,
+    link2,
+    link2_name,
+    link3,
+    link3_name,
+    link4,
+    link4_name,
+    link5,
+    link5_name,
+    other,
+    other_name,
+    card_body,
+):
     if edit_n_clicks:
-        card_id = json.loads(dash.callback_context.triggered[0]["prop_id"].split(".")[0])["index"]
+        card_id = json.loads(
+            dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+        )["index"]
         card = session.query(Card).filter_by(id=card_id).first()
 
         return (
@@ -839,28 +935,49 @@ def open_update_card_modal(edit_n_clicks, update_n_clicks, secondary_analyst, li
             card.other_name,
             0,
             0,
+            dash.no_update,
         )
     if update_n_clicks:
-        card_id = json.loads(dash.callback_context.triggered[0]["prop_id"].split(".")[0])["index"]
+        card_id = json.loads(
+            dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+        )["index"]
         card = session.query(Card).filter_by(id=card_id).first()
         s_analyst = session.query(Analyst).filter_by(id=secondary_analyst).first()
 
         card.secondary_analyst_id = secondary_analyst
         card.second_analyst = s_analyst.name
-        card.link1 = link1 
-        card.link1_name = link1_name 
-        card.link2 = link2 
-        card.link2_name = link2_name 
-        card.link3 = link3 
-        card.link3_name = link3_name 
-        card.link4 = link4 
-        card.link4_name = link4_name 
-        card.link5 = link5 
-        card.link5_name = link5_name 
-        card.other = other 
-        card.other_name = other_name 
+        card.link1 = link1
+        card.link1_name = link1_name
+        card.link2 = link2
+        card.link2_name = link2_name
+        card.link3 = link3
+        card.link3_name = link3_name
+        card.link4 = link4
+        card.link4_name = link4_name
+        card.link5 = link5
+        card.link5_name = link5_name
+        card.other = other
+        card.other_name = other_name
 
-
+        return (
+            False,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            0,
+            0,
+            generate_card_body(card),
+        )
     return (
         False,
         None,
@@ -878,8 +995,8 @@ def open_update_card_modal(edit_n_clicks, update_n_clicks, secondary_analyst, li
         None,
         0,
         0,
+        dash.no_update,
     )
-
 
 
 @app.callback(
@@ -938,7 +1055,7 @@ def add_new_card(
     if n_clicks:
         if not stock_name:
             return PreventUpdate, drag_container1_children, 0
-        
+
         p_analyst = session.query(Analyst).filter_by(id=primary_analyst).first()
         s_analyst = session.query(Analyst).filter_by(id=secondary_analyst).first()
 
