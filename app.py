@@ -6,8 +6,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State, ClientsideFunction, MATCH
 from dash_extensions import EventListener
 from dash.exceptions import PreventUpdate
-
-from datetime import date, datetime
+from datetime import datetime
 from sqlalchemy import (
     create_engine,
     Column,
@@ -31,7 +30,7 @@ class Card(Base):
     id = Column(Integer, primary_key=True)
     type = Column(String, default="New Ideas")
     stage = Column(String)
-    entry_datetime = Column(String, default=date.today)
+    entry_datetime = Column(String, default=datetime.now().strftime('%d/%m/%Y'))
     stock_name = Column(String)
     due_date = Column(String)
     analyst_name = Column(String)
@@ -71,7 +70,7 @@ class Log(Base):
     card = relationship("Card", back_populates="logs")
 
 
-# Define Log model
+# Define Analyst model
 class Analyst(Base):
     __tablename__ = "analyst"
 
@@ -367,12 +366,9 @@ def generate_card_body(data):
                     ],
                     style={"display": "flex", "justifyContent": "space-between"},
                 ),
-                html.Br(),
-                html.P([html.Strong("Analyst: "), html.Span(f"{data.analyst_name}")]),
-                html.P([html.Strong("C Date: "), html.Span(f"{data.entry_datetime}")]),
-                html.P(
-                    [html.Strong("Sec Analyst: "), html.Span(f"{data.second_analyst}")]
-                ),
+                html.P([html.Strong("Analyst: "), f"{data.analyst_name}"], style={"marginBottom": "0px"}),
+                html.P([html.Strong("C Date: "), f"{data.entry_datetime}"], style={"marginBottom": "0px"}),
+                html.P([html.Strong("Sec Analyst: "), f"{data.second_analyst}"]),
                 html.P(
                     [
                         html.Button(
@@ -436,7 +432,6 @@ def generate_card_body(data):
                         ),
                     ],
                 ),
-                html.Br(),
                 html.P(
                     [
                         html.I(
@@ -639,12 +634,12 @@ create_card_modal = dbc.Modal(
                             html.Strong("Due Date"),
                             dcc.DatePickerSingle(
                                 id="due_date",
-                                display_format="YYYY-MM-DD",
-                                date=datetime.now().date(),
-                                style={"display": "block"},
+                                display_format="DD/MM/YYYY",
+                                date=datetime.now().date().strftime('%d/%m/%Y'),
+                                style={"display": "block", 'font-size': '16px'},
                             ),
                         ],
-                        style={"padding": "5px"},
+                        style={"padding": "5px", 'font-size': '0.8rem'},
                     ),
                     html.Div(
                         [
@@ -891,7 +886,6 @@ app.clientside_callback(
     State({"type": "link5_name", "index": MATCH}, "value"),
     State({"type": "other", "index": MATCH}, "value"),
     State({"type": "other_name", "index": MATCH}, "value"),
-    State({"type": "card_body", "index": MATCH}, "children"),
     prevent_initial_call=True,
 )
 def open_update_card_modal(
@@ -910,7 +904,6 @@ def open_update_card_modal(
     link5_name,
     other,
     other_name,
-    card_body,
 ):
     if edit_n_clicks:
         card_id = json.loads(
@@ -958,6 +951,7 @@ def open_update_card_modal(
         card.link5_name = link5_name
         card.other = other
         card.other_name = other_name
+        session.commit()
 
         return (
             False,
@@ -1058,7 +1052,6 @@ def add_new_card(
 
         p_analyst = session.query(Analyst).filter_by(id=primary_analyst).first()
         s_analyst = session.query(Analyst).filter_by(id=secondary_analyst).first()
-
         new_card = Card(
             stage="Ideas",
             stock_name=stock_name,
@@ -1114,26 +1107,39 @@ def update_card(nevents, event_data):
                 .filter_by(id=event_data["detail.draggedCardID"])
                 .first()
             )
+            log = Log(
+                card_id=card.id,
+                old_stage=card.stage
+            )
             if event_data["detail.targetContainer"] == "drag_container1":
                 card.stage = "Ideas"
+                log.new_stage = card.stage
             elif event_data["detail.targetContainer"] == "drag_container2":
                 card.stage = "Correction of Errors Report"
+                log.new_stage = card.stage
             elif event_data["detail.targetContainer"] == "drag_container3":
                 card.stage = "Short Note"
+                log.new_stage = card.stage
             elif event_data["detail.targetContainer"] == "drag_container4":
                 card.stage = "Q&A"
+                log.new_stage = card.stage
             elif event_data["detail.targetContainer"] == "drag_container5":
                 card.stage = "Model"
+                log.new_stage = card.stage
             elif event_data["detail.targetContainer"] == "drag_container6":
                 card.stage = "Pre Mortem"
+                log.new_stage = card.stage
             elif event_data["detail.targetContainer"] == "drag_container7":
                 card.stage = "Full Note"
+                log.new_stage = card.stage
             elif event_data["detail.targetContainer"] == "drag_container8":
                 card.stage = "Buy List"
+                log.new_stage = card.stage
             elif event_data["detail.targetContainer"] == "drag_container9":
                 card.stage = "Fail List"
+                log.new_stage = card.stage
+            session.add(log)
             session.commit()
-
     return ""
 
 
