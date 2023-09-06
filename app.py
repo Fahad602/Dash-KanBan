@@ -558,7 +558,7 @@ def serve_dashboard():
                     children=[
                         html.Div(
                             id="drag_container1",
-                            className="col custom-col",
+                            className="col custom-col1",
                             children=[
                                 generate_card(card_data)
                                 for card_data in get_cards_by_stage("Ideas")
@@ -616,7 +616,7 @@ def serve_dashboard():
                         ),
                         html.Div(
                             id="drag_container8",
-                            className="col custom-col",
+                            className="col custom-col8",
                             children=[
                                 # generate_card(card_data)
                                 # for card_data in get_cards_by_stage("Buy List")
@@ -624,7 +624,7 @@ def serve_dashboard():
                         ),
                         html.Div(
                             id="drag_container9",
-                            className="col custom-col",
+                            className="col custom-col9",
                             children=[
                                 # generate_card(card_data)
                                 # for card_data in get_cards_by_stage("Fail List")

@@ -53,11 +53,48 @@ html body{
   border-top-right-radius: 7px;
 }
 
+.custom-col1 {
+  padding: 6px;
+  padding-top: 8px;
+  height: 93vh;
+  background-color: #eff8ff;
+  margin: 3px;
+  margin-top: 0;
+  flex: 1;
+  overflow-y: auto;
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+
 .custom-col {
   padding: 6px;
   padding-top: 8px;
   height: 93vh;
   background-color: #fff;
+  margin: 3px;
+  margin-top: 0;
+  flex: 1;
+  overflow-y: auto;
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+.custom-col8 {
+  padding: 6px;
+  padding-top: 8px;
+  height: 93vh;
+  background-color: #effff1;
+  margin: 3px;
+  margin-top: 0;
+  flex: 1;
+  overflow-y: auto;
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+.custom-col9 {
+  padding: 6px;
+  padding-top: 8px;
+  height: 93vh;
+  background-color: #ffeded;
   margin: 3px;
   margin-top: 0;
   flex: 1;
