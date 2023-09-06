@@ -14,10 +14,11 @@ from sqlalchemy import (
     String,
     DateTime,
     ForeignKey,
-    desc
+    desc,
 )
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm import declarative_base
+import time
 
 # Define SQLAlchemy base class
 Base = declarative_base()
@@ -30,7 +31,7 @@ class Card(Base):
     id = Column(Integer, primary_key=True)
     type = Column(String, default="New Ideas")
     stage = Column(String)
-    entry_datetime = Column(String, default=datetime.now().strftime('%d/%m/%Y'))
+    entry_datetime = Column(String, default=datetime.now().strftime("%d/%m/%Y"))
     stock_name = Column(String)
     due_date = Column(String)
     analyst_name = Column(String)
@@ -51,6 +52,7 @@ class Card(Base):
     other_name = Column(String)
     primary_analyst_id = Column(Integer, ForeignKey("analyst.id"))
     secondary_analyst_id = Column(Integer, ForeignKey("analyst.id"))
+    active = Column(Integer, default=1)
 
     # Establish a one-to-many relationship with Log table
     logs = relationship("Log", back_populates="card")
@@ -91,12 +93,16 @@ session = Session()
 
 # Query records for each stage
 def get_cards_by_stage(stage):
-    return session.query(Card).filter_by(stage=stage).order_by(desc(Card.id)).all()
+    return (
+        session.query(Card)
+        .filter_by(stage=stage, active=1)
+        .order_by(desc(Card.id))
+        .all()
+    )
 
 
 def get_analysts():
     return session.query(Analyst).all()
-
 
 
 app = dash.Dash(
@@ -366,8 +372,14 @@ def generate_card_body(data):
                     ],
                     style={"display": "flex", "justifyContent": "space-between"},
                 ),
-                html.P([html.Strong("Analyst: "), f"{data.analyst_name}"], style={"marginBottom": "0px"}),
-                html.P([html.Strong("C Date: "), f"{data.entry_datetime}"], style={"marginBottom": "0px"}),
+                html.P(
+                    [html.Strong("Analyst: "), f"{data.analyst_name}"],
+                    style={"marginBottom": "0px"},
+                ),
+                html.P(
+                    [html.Strong("C Date: "), f"{data.entry_datetime}"],
+                    style={"marginBottom": "0px"},
+                ),
                 html.P([html.Strong("Sec Analyst: "), f"{data.second_analyst}"]),
                 html.P(
                     [
@@ -435,13 +447,26 @@ def generate_card_body(data):
                 html.P(
                     [
                         html.I(
-                            className="bi bi-clock",
-                            style={"margin":"8px"},
-
+                            id={"type": "delete-button", "index": data.id},
+                            className="bi bi-trash-fill edit-icon",
+                            n_clicks=0,
                         ),
-                        f"{data.due_date}",
+                        html.P(
+                            [
+                                html.I(
+                                    className="bi bi-clock",
+                                    style={"margin": "8px"},
+                                ),
+                                f"{data.due_date}",
+                            ],
+                            style={"textAlign": "right", "marginBottom": 0},
+                        ),
                     ],
-                    style={"textAlign": "right", "marginBottom": 0},
+                    style={
+                        "display": "flex",
+                        "justifyContent": "space-between",
+                        "marginBottom": 0,
+                    },
                 ),
             ],
         ),
@@ -635,11 +660,11 @@ create_card_modal = dbc.Modal(
                             dcc.DatePickerSingle(
                                 id="due_date",
                                 display_format="DD/MM/YYYY",
-                                date=datetime.now().date().strftime('%d/%m/%Y'),
-                                style={"display": "block", 'font-size': '16px'},
+                                date=datetime.now().date().strftime("%d/%m/%Y"),
+                                style={"display": "block", "font-size": "16px"},
                             ),
                         ],
-                        style={"padding": "5px", 'font-size': '0.8rem'},
+                        style={"padding": "5px", "font-size": "0.8rem"},
                     ),
                     html.Div(
                         [
@@ -650,6 +675,7 @@ create_card_modal = dbc.Modal(
                                     {"label": analyst.name, "value": analyst.id}
                                     for analyst in get_analysts()
                                 ],
+                                value=1,
                             ),
                         ],
                         style={"padding": "5px"},
@@ -853,6 +879,25 @@ app.clientside_callback(
 )
 
 
+# @app.callback(
+#     Output({"type": "hidden_div", "index": MATCH}, "children"),
+#     Input({"type": "delete-button", "index": MATCH}, "n_clicks"),
+#     prevent_initial_call=True,
+# )
+# def open_delete_card(
+#     delete_n_clicks,
+# ):
+#     breakpoint()
+#     if delete_n_clicks:
+#         card_id = json.loads(
+#             dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+#         )["index"]
+#         card = session.query(Card).filter_by(id=card_id).first()
+#         card.active = 0
+#         session.commit()
+#         return
+
+
 @app.callback(
     Output({"type": "update_card_modal", "index": MATCH}, "is_open"),
     Output({"type": "secondary_analyst", "index": MATCH}, "value"),
@@ -870,9 +915,12 @@ app.clientside_callback(
     Output({"type": "other_name", "index": MATCH}, "value"),
     Output({"type": "edit-button", "index": MATCH}, "n_clicks"),
     Output({"type": "update-button", "index": MATCH}, "n_clicks"),
+    Output({"type": "delete-button", "index": MATCH}, "n_clicks"),
     Output({"type": "card_body", "index": MATCH}, "children"),
+    Output({"type": "card_body", "index": MATCH}, "style"),
     Input({"type": "edit-button", "index": MATCH}, "n_clicks"),
     Input({"type": "update-button", "index": MATCH}, "n_clicks"),
+    Input({"type": "delete-button", "index": MATCH}, "n_clicks"),
     State({"type": "secondary_analyst", "index": MATCH}, "value"),
     State({"type": "link1", "index": MATCH}, "value"),
     State({"type": "link1_name", "index": MATCH}, "value"),
@@ -891,6 +939,7 @@ app.clientside_callback(
 def open_update_card_modal(
     edit_n_clicks,
     update_n_clicks,
+    delete_n_clicks,
     secondary_analyst,
     link1,
     link1_name,
@@ -928,6 +977,8 @@ def open_update_card_modal(
             card.other_name,
             0,
             0,
+            0,
+            dash.no_update,
             dash.no_update,
         )
     if update_n_clicks:
@@ -970,7 +1021,38 @@ def open_update_card_modal(
             None,
             0,
             0,
+            0,
             generate_card_body(card),
+            dash.no_update,
+        )
+    if delete_n_clicks:
+        card_id = json.loads(
+            dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+        )["index"]
+        card = session.query(Card).filter_by(id=card_id).first()
+        card.active = 0
+        session.commit()
+        style = {"display": "none"}
+        return (
+            False,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            0,
+            0,
+            0,
+            dash.no_update,
+            style
         )
     return (
         False,
@@ -989,6 +1071,8 @@ def open_update_card_modal(
         None,
         0,
         0,
+        0,
+        dash.no_update,
         dash.no_update,
     )
 
@@ -1059,7 +1143,8 @@ def add_new_card(
             primary_analyst_id=primary_analyst,
             secondary_analyst_id=secondary_analyst,
             analyst_name=p_analyst.name,
-            second_analyst=s_analyst.name,
+            Sedol=int(time.time() * 1001) % 100000000,
+            ISIN=int(time.time() * 1000) % 100000000,
             link1=link1,
             link2=link2,
             link3=link3,
@@ -1073,6 +1158,8 @@ def add_new_card(
             link5_name=link5_name,
             other_name=other_name,
         )
+        if s_analyst:
+            new_card.second_analyst = s_analyst.name
         session.add(new_card)
         session.commit()
 
@@ -1107,10 +1194,7 @@ def update_card(nevents, event_data):
                 .filter_by(id=event_data["detail.draggedCardID"])
                 .first()
             )
-            log = Log(
-                card_id=card.id,
-                old_stage=card.stage
-            )
+            log = Log(card_id=card.id, old_stage=card.stage)
             if event_data["detail.targetContainer"] == "drag_container1":
                 card.stage = "Ideas"
                 log.new_stage = card.stage
