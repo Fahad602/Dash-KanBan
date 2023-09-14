@@ -943,25 +943,6 @@ app.clientside_callback(
 )
 
 
-# @app.callback(
-#     Output({"type": "hidden_div", "index": MATCH}, "children"),
-#     Input({"type": "delete-button", "index": MATCH}, "n_clicks"),
-#     prevent_initial_call=True,
-# )
-# def open_delete_card(
-#     delete_n_clicks,
-# ):
-#     breakpoint()
-#     if delete_n_clicks:
-#         card_id = json.loads(
-#             dash.callback_context.triggered[0]["prop_id"].split(".")[0]
-#         )["index"]
-#         card = session.query(Card).filter_by(id=card_id).first()
-#         card.active = 0
-#         session.commit()
-#         return
-
-
 @app.callback(
     Output({"type": "update_card_modal", "index": MATCH}, "is_open"),
     Output({"type": "secondary_analyst", "index": MATCH}, "value"),
@@ -1227,7 +1208,8 @@ def add_new_card(
         session.add(new_card)
         session.commit()
 
-        updated_children = [generate_card(new_card)] + drag_container1_children
+        updated_children = drag_container1_children + [generate_card(new_card)]
+
         return False, updated_children, 0
 
     return False, drag_container1_children, 0
